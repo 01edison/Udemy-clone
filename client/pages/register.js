@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 import { Url } from "../constants";
 import axios from "axios";
 import { SyncOutlined } from "@ant-design/icons";
@@ -10,6 +12,10 @@ const register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  const user = useSelector((state) => state.user.user);
 
   const handleSubmit = (e) => {
     setLoading(true);
@@ -26,6 +32,10 @@ const register = () => {
         setLoading(false);
       });
   };
+
+  useEffect(() => {
+    if (user) router.push("/");
+  }, []);
 
   return (
     <>
