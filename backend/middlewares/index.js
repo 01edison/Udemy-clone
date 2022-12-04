@@ -8,8 +8,7 @@ const isUserAuthenticated = (req, res, next) => {
     const user = verify(token, process.env.JWT_SECRET);
     req.profile = user;
     next();
-  } catch (e) {
-    console.log("sorry, token expired", e);
+  } catch (err) {
     return res.status(401).json({ err: "Token Expired." });
   }
 };

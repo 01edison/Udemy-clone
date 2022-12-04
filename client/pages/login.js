@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions } from "../store/user-slice";
+import { userActions } from "../store/user-slice";
 import { Url } from "../constants";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { SyncOutlined } from "@ant-design/icons";
 
 const register = () => {
-  const [email, setEmail] = useState("edison@email");
-  const [password, setPassword] = useState("edison123");
+  const [email, setEmail] = useState("cmgbeokwere6@gmail.com");
+  const [password, setPassword] = useState("chimdi123");
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
@@ -26,8 +26,8 @@ const register = () => {
       .then((res) => {
         console.log(res.data.user);
         toast.success("Login Successful");
-        dispatch(authActions.login(res.data.user));
-        router.push("/");
+        dispatch(userActions.login(res.data.user));
+        router.push("/user");
         setLoading(false);
       })
       .catch((e) => {
@@ -70,9 +70,13 @@ const register = () => {
             {loading ? <SyncOutlined spin /> : "Login"}
           </button>
         </form>
-        <p className="text-center p-3">
-          Don't have an account?
+        <p className="text-center pt-3">
+          Don't have an account? {"  "}
           <Link href="/register">Register</Link>
+        </p>
+        <p className="text-center">
+          Forgot password? {"  "}
+          <Link href="/forgot-password">Reset</Link>
         </p>
       </div>
     </>

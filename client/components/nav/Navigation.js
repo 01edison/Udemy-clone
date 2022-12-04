@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Menu } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions } from "../store/user-slice";
+import { userActions } from "../../store/user-slice";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -12,10 +12,13 @@ import {
   LogoutOutlined,
   UserAddOutlined,
   UserOutlined,
+  CarryOutOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
 
 const { Item, SubMenu } = Menu;
+
 const Navigation = () => {
   const [current, setCurrent] = useState("");
   const dispatch = useDispatch();
@@ -24,7 +27,7 @@ const Navigation = () => {
   const user = useSelector((state) => state.user.user);
 
   const logout = () => {
-    dispatch(authActions.logout());
+    dispatch(userActions.logout());
     axios
       .get("/api/logout")
       .then((res) => {
@@ -71,6 +74,34 @@ const Navigation = () => {
         </Item>
       )}
 
+      {user && user.role.includes("Instructor") && (
+        <Item
+          key="/instructor/course/create"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<CarryOutOutlined />}
+        >
+          <Link
+            href="/instructor/course/create"
+            style={{ textDecoration: "none" }}
+          >
+            Create Course{" "}
+          </Link>
+        </Item>
+      )}
+      {user && !user.role.includes("Instructor") && (
+        <Item
+          key="/user/become-instructor"
+          onClick={(e) => setCurrent(e.key)}
+          icon={<TeamOutlined />}
+        >
+          <Link
+            href="/user/become-instructor"
+            style={{ textDecoration: "none" }}
+          >
+            Become an Instructor
+          </Link>
+        </Item>
+      )}
       {user && (
         <SubMenu
           title={user?.name}

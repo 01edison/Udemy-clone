@@ -13,4 +13,25 @@ const getUser = (req, res) => {
     });
 };
 
-module.exports = { getUser };
+const becomeInstructor = async (req, res) => {
+  const { id } = req.profile;
+  const { secretKey } = req.body;
+
+  const user = await User.findById(id);
+
+  if (!user.role.includes("Instructor")) {
+    user.paystackPublicKey = secretKey;
+    user.role.push("Instructor");
+
+    user.save((err) => {
+      if (!err) return res.json({ msg: "Successfully migrated to Instructor" });
+      else {
+        return res.status(400).json({ err });
+      }
+    });
+  } else {
+    return res.status(400).json({ err: "User is already an instructor" });
+  }
+};
+
+module.exports = { getUser, becomeInstructor };

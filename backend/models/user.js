@@ -25,6 +25,14 @@ const userSchema = new Schema(
       default: ["Subscriber"],
       enum: ["Subscriber", "Instructor", "Admin"],
     },
+    paystackPublicKey: {
+      type: String,
+      default: "",
+    },
+    passwordResetCode: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

@@ -11,8 +11,11 @@ const userSlice = createSlice({
     logout(state) {
       state.user = null;
     },
+    updateRole(state) {
+      state.user.role.push("Instructor");
+    },
   },
 });
 
-export const authActions = userSlice.actions;
+export const userActions = userSlice.actions;
 export default userSlice;

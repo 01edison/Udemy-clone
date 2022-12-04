@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { authActions } from "../../store/user-slice";
+import { toast } from "react-toastify";
+import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
+import UserNav from "../../components/nav/UserNav";
+import UserRoute from "../../components/routes/UserRoute";
 
 const User = () => {
   const [userData, setUserData] = useState({});
   const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const router = useRouter();
 
   useEffect(() => {
@@ -19,16 +24,16 @@ const User = () => {
         })
         .catch((e) => {
           console.log(e);
-          router;
+          dispatch(authActions.logout());
+          router.push("/login");
+          toast(e.response?.data.err);
         });
     }
   }, []);
   return (
-    <>
-      <h1 className="jumbotron text-center square">User page</h1>
-      <h3>{userData?.name}</h3>
-      <h3>{userData?.email}</h3>
-    </>
+    <UserRoute>
+      <h1 className="jumbotron square text-center">User Dashboard</h1>
+    </UserRoute>
   );
 };
 
