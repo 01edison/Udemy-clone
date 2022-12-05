@@ -1,8 +1,22 @@
-.square{
-    border-radius: 0px;
+.square {
+  border-radius: 0px;
 }
 
-.jumbotron{
-    color: #fff;
-    background: linear-gradient(to right, #007bff, #000)
+.jumbotron {
+  color: #fff;
+  background: linear-gradient(to right, #007bff, #000);
+}
+
+.active.nav__link {
+  background-color: blue;
+  color: #fff;
+  text-decoration: none;
+  border-radius: .5rem
+}
+
+
+.nav__link {
+  color: #000;
+  text-decoration: none;
+  padding: .5rem
 }

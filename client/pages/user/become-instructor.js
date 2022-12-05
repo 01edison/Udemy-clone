@@ -20,7 +20,7 @@ const BecomeInstructor = () => {
   const user = useSelector((state) => state.user.user);
   const router = useRouter();
 
-  console.log(user)
+  console.log(user);
   const becomeInstructor = async () => {
     setLoading(true);
     try {
@@ -48,14 +48,13 @@ const BecomeInstructor = () => {
           <div className="col-md-6 offset-md-3 text-center">
             <div className="pt-1">
               <UserSwitchOutlined className="display-1" />
-
               <h2>Setup account to publish courses on Udemy-clone</h2>
               <p>
                 Udemy-clone partners with paystack to transfer earnings to your
-                bank account. Please sign up on paystack to retrieve your Secret
-                key.
+                bank account. Please{" "}
+                <a href="https://dashboard.paystack.com/#/login" target="_blank">sign up</a> on
+                paystack to retrieve your Secret key.
               </p>
-
               <form>
                 <input
                   className="form-control mb-2"

@@ -1,5 +1,6 @@
 const { verify } = require("jsonwebtoken");
 const Tokens = require("csrf");
+const User = require("../models/user");
 
 const isUserAuthenticated = (req, res, next) => {
   const { headers } = req;
@@ -25,4 +26,20 @@ const isCsrfValid = (req, res, next) => {
     return res.status(401).send("Malicious Request");
   }
 };
-module.exports = { isUserAuthenticated, isCsrfValid };
+
+const isUserAnInstructor = async (req, res, next) => {
+  const { id } = req.profile;
+  try {
+    const user = await User.findById(id);
+    if (!user) return res.status(400).json({ err: "User doesnt exist" });
+    if (user.role.includes("Instructor")) {
+      next();
+    } else {
+      return res.status(400).json({ err: "User is not an instructor" });
+    }
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ err: e });
+  }
+};
+module.exports = { isUserAuthenticated, isCsrfValid, isUserAnInstructor };

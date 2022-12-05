@@ -76,15 +76,12 @@ const Navigation = () => {
 
       {user && user.role.includes("Instructor") && (
         <Item
-          key="/instructor/course/create"
+          key="/instructor"
           onClick={(e) => setCurrent(e.key)}
-          icon={<CarryOutOutlined />}
+          icon={<TeamOutlined />}
         >
-          <Link
-            href="/instructor/course/create"
-            style={{ textDecoration: "none" }}
-          >
-            Create Course{" "}
+          <Link href="/instructor" style={{ textDecoration: "none" }}>
+            Instructor
           </Link>
         </Item>
       )}

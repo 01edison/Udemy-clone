@@ -24,14 +24,18 @@ const register = () => {
     axios
       .post(`/api/login`, body)
       .then((res) => {
-        console.log(res.data.user);
+        const { role } = res.data.user;
         toast.success("Login Successful");
         dispatch(userActions.login(res.data.user));
-        router.push("/user");
+        if (role.includes("Instructor")) {
+          router.push("/instructor");
+        } else {
+          router.push("/user");
+        }
         setLoading(false);
       })
       .catch((e) => {
-        toast.error(e.response.data.err);
+        toast.error(e.response?.data?.err);
         setLoading(false);
       });
   };

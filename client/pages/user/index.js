@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { authActions } from "../../store/user-slice";
+import { userActions } from "../../store/user-slice";
 import { toast } from "react-toastify";
 import { useSelector, useDispatch } from "react-redux";
 import { useRouter } from "next/router";
@@ -24,9 +24,9 @@ const User = () => {
         })
         .catch((e) => {
           console.log(e);
-          dispatch(authActions.logout());
+          dispatch(userActions.logout());
           router.push("/login");
-          toast(e.response?.data.err);
+          toast(e.response?.data?.err);
         });
     }
   }, []);
