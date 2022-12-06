@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import InstructorRoute from "../../../components/routes/InstructorRoute";
-import { Select, Avatar } from "antd";
+import { Select, Avatar, Badge } from "antd";
 import { SaveOutlined, SyncOutlined } from "@ant-design/icons";
 import Resizer from "react-image-file-resizer";
 import { toast } from "react-toastify";
@@ -9,6 +9,10 @@ import { toast } from "react-toastify";
 const { Option } = Select;
 const CreateCourse = () => {
   const [loading, setLoading] = useState(false);
+  const [image, setImage] = useState({
+    location: "",
+    key: "",
+  });
   const [course, setCourse] = useState({
     name: "",
     description: "",
@@ -22,34 +26,70 @@ const CreateCourse = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setCourse({ ...course, [name]: value });
   };
 
   const handleImage = (e) => {
-    const image = e.target.files[0];
+    const image = e.target?.files[0];
     setImagePreview(window.URL.createObjectURL(image));
     setCourse({ ...course, uploading: true });
-
     // resize
-    Resizer.imageFileResizer(image, 720, 500, "JPEG", 100, 0, async (image) => {
-      try {
-        const { data } = await axios.post("/api/course/upload-image", {
-          image,
-        });
-
-        console.log(data);
-      } catch (e) {
-        console.log(e);
-        toast.error("Error uploading Image to AWS S3");
+    Resizer.imageFileResizer(
+      image,
+      720,
+      500,
+      "JPEG",
+      100,
+      0,
+      async (imageUri) => {
+        try {
+          toast("Uploading image to AWS storage");
+          const {
+            data: { location, key },
+          } = await axios.post("/api/course/upload-image", {
+            imageUri,
+          });
+          toast.success("Image uploaded successfully");
+          setImage({ ...image, key, location });
+        } catch (e) {
+          console.log(e);
+          toast.error("Error uploading Image to AWS S3");
+        }
+        setCourse({ ...course, uploading: false });
       }
-      setCourse({ ...course, uploading: false });
-    });
+    );
   };
 
-  const handleSubmit = (e) => {
+  const removeImage = async () => {
+    setCourse({ ...course, uploading: true });
+    try {
+      toast("Deleting image from aws bucket...");
+
+      const { data } = await axios.post("/api/course/delete-image", {
+        image,
+      });
+
+      toast.success("Image deleted successfully");
+      setImage({ ...image, location: "", key: "" });
+      setImagePreview("");
+    } catch (e) {
+      console.log(e);
+
+      toast("Oops something went wrong, please try deleting again");
+    }
+    setCourse({ ...course, uploading: false });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(course);
+    try {
+      const { data } = await axios.post("/api/create-course", {
+        ...course,
+        image,
+      });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -64,6 +104,7 @@ const CreateCourse = () => {
             placeholder="Course Name"
             value={course.name}
             onChange={handleChange}
+            disabled
           />
           <textarea
             name="description"
@@ -109,20 +150,24 @@ const CreateCourse = () => {
           />
           <div className="row">
             <div className="col-md-6">
-              <label className="form-control">
-                {course.uploading ? "Uploading..." : "Upload Image"}
+              <label className="w-100 btn btn-primary">
+                {course.uploading ? <SyncOutlined spin /> : "Upload Image"}
                 <input
+                  className="btn btn-primary"
                   type="file"
                   name="image"
                   onChange={handleImage}
                   value={course.imagePreview}
+                  hidden
                 />
               </label>
             </div>
 
             {imagePreview && (
               <div className="col-md-6">
-                <Avatar src={imagePreview} size={50} />
+                <Badge count="X" onClick={removeImage} className="pointer">
+                  <Avatar src={imagePreview} size={50} />
+                </Badge>
               </div>
             )}
           </div>
@@ -134,10 +179,11 @@ const CreateCourse = () => {
               loading || !course.name || !course.description || !course.category
             }
           >
-            {loading ? <SyncOutlined /> : "Create Course"}
+            {loading ? <SyncOutlined spin /> : "Create Course"}
           </button>
         </form>
-        {JSON.stringify(course, null, 4)}
+        {JSON.stringify(course, null, 4)} <br />
+        {JSON.stringify(image, null, 4)}
       </div>
     </InstructorRoute>
   );

@@ -1,7 +1,9 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+
 import InstructorNav from "../../components/nav/InstructorNav";
 
 const InstructorRoute = ({ children }) => {

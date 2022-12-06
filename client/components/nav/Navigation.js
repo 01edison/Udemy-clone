@@ -42,6 +42,17 @@ const Navigation = () => {
     setCurrent(window.location.pathname);
   });
 
+  useEffect(() => {
+    (async () => {
+      try {
+        await axios.get("/api/user");
+      } catch (e) {
+        toast.error("Token expired");
+        dispatch(userActions.logout());
+        router.push("/login");
+      }
+    })();
+  }, []);
   return (
     <Menu mode="horizontal" selectedKeys={[current]}>
       <Item key="/" onClick={(e) => setCurrent(e.key)} icon={<HomeOutlined />}>
