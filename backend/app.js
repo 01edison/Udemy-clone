@@ -19,7 +19,7 @@ const {
 } = require("./controllers/auth");
 
 const { getUser, becomeInstructor } = require("./controllers/user");
-const { uploadImage } = require("./controllers/course");
+const { uploadImage, deleteImage, createCourse } = require("./controllers/course");
 
 mongoose
   .connect("mongodb://localhost:27017/udemyCloneDB")
@@ -55,6 +55,8 @@ app.post("/api/become-instructor", isUserAuthenticated, becomeInstructor);
 
 //course routes
 app.post("/api/course/upload-image", instructorRoute, uploadImage);
+app.post("/api/course/delete-image", instructorRoute, deleteImage);
+app.post("/api/create-course", instructorRoute, createCourse);
 
 //csrf token
 app.get("/api/csrf-token", (req, res) => {
