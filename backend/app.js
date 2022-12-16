@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const formidableMiddleware = require("express-formidable");
 const Tokens = require("csrf");
 const cors = require("cors");
 const {
@@ -9,6 +10,7 @@ const {
   isCsrfValid,
   isUserAnInstructor,
 } = require("./middlewares");
+
 const {
   register,
   login,
@@ -19,7 +21,16 @@ const {
 } = require("./controllers/auth");
 
 const { getUser, becomeInstructor } = require("./controllers/user");
-const { uploadImage, deleteImage, createCourse } = require("./controllers/course");
+const {
+  uploadImage,
+  uploadVideo,
+  deleteVideo,
+  deleteImage,
+  createCourse,
+  getCourses,
+  getCourse,
+  addLesson
+} = require("./controllers/course");
 
 mongoose
   .connect("mongodb://localhost:27017/udemyCloneDB")
@@ -55,8 +66,18 @@ app.post("/api/become-instructor", isUserAuthenticated, becomeInstructor);
 
 //course routes
 app.post("/api/course/upload-image", instructorRoute, uploadImage);
+app.post(
+  "/api/course/upload-video/:instructorId",
+  instructorRoute,
+  formidableMiddleware(),
+  uploadVideo
+);
+app.post("/api/course/delete-video", instructorRoute, deleteVideo);
 app.post("/api/course/delete-image", instructorRoute, deleteImage);
 app.post("/api/create-course", instructorRoute, createCourse);
+app.get("/api/courses", instructorRoute, getCourses);
+app.get("/api/course/:slug", isUserAuthenticated, getCourse);
+app.post("/api/course/add-lesson/:slug/:instructorId", instructorRoute, addLesson);
 
 //csrf token
 app.get("/api/csrf-token", (req, res) => {

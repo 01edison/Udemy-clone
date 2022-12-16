@@ -8,7 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { SyncOutlined } from "@ant-design/icons";
 
-const register = () => {
+const Register = () => {
   const [email, setEmail] = useState("cmgbeokwere6@gmail.com");
   const [password, setPassword] = useState("chimdi123");
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ const register = () => {
     e.preventDefault();
     const body = { email, password };
     axios
-      .post(`/api/login`, body)
+      .post("/api/login", body)
       .then((res) => {
         const { role } = res.data.user;
         toast.success("Login Successful");
@@ -87,4 +87,4 @@ const register = () => {
   );
 };
 
-export default register;
+export default Register;

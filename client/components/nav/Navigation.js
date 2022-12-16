@@ -12,7 +12,6 @@ import {
   LogoutOutlined,
   UserAddOutlined,
   UserOutlined,
-  CarryOutOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
@@ -31,7 +30,6 @@ const Navigation = () => {
     axios
       .get("/api/logout")
       .then((res) => {
-        console.log(res.data);
         toast(res.data.msg);
         router.push("/login");
       })
@@ -40,18 +38,19 @@ const Navigation = () => {
 
   useEffect(() => {
     setCurrent(window.location.pathname);
-  });
-
-  useEffect(() => {
     (async () => {
       try {
         await axios.get("/api/user");
       } catch (e) {
-        toast.error("Token expired");
+        toast.error("Token expired. Please log back in.");
         dispatch(userActions.logout());
         router.push("/login");
       }
     })();
+  });
+
+  useEffect(() => {
+    
   }, []);
   return (
     <Menu mode="horizontal" selectedKeys={[current]}>

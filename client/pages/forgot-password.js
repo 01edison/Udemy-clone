@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { SyncOutlined } from "@ant-design/icons";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
 
 const ForgotPassword = () => {
@@ -24,7 +24,7 @@ const ForgotPassword = () => {
     setLoading(true);
     try {
       const body = { email };
-      const res = await axios.post(`/api/forgot-password`, body);
+      const res = await axios.post("/api/forgot-password", body);
       console.log(res.data);
       setSuccess(true);
       toast("Check your email for the secret code");

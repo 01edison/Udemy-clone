@@ -1,23 +1,21 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+const { Schema, model } = require("mongoose");
 
-const lessonSchema = new Schema(
+const lessonSchema = Schema(
   {
     title: {
       type: String,
       required: true,
-      unique: true,
     },
     slug: {
       type: String,
       required: true,
     },
     content: {
-      type: {},
-      minlength: 200,
-    },
-    video_link: {
       type: String,
+      required: true
+    },
+    video: {
+      type: {},
       required: true,
     },
     free_preview: {
@@ -28,6 +26,6 @@ const lessonSchema = new Schema(
   { timestamps: true }
 );
 
-const Lesson = new model("lesson", lessonSchema);
+const Lesson = new model("Lesson", lessonSchema);
 
 module.exports = { Lesson, lessonSchema };

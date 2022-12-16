@@ -15,7 +15,11 @@ const register = async (req, res) => {
           return res.status(400).json({ err: "User already exists" });
         }
         User.create(
-          { name, email, password: hashedPassword },
+          {
+            name,
+            email,
+            password: hashedPassword,
+          },
           (err, result) => {
             if (!err) {
               return res.status(200).json({ msg: "User created successfully" });

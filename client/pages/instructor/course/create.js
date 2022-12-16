@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import InstructorRoute from "../../../components/routes/InstructorRoute";
 import { Select, Avatar, Badge } from "antd";
-import { SaveOutlined, SyncOutlined } from "@ant-design/icons";
+import { SyncOutlined } from "@ant-design/icons";
 import Resizer from "react-image-file-resizer";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const { Option } = Select;
 const CreateCourse = () => {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [image, setImage] = useState({
     location: "",
@@ -53,7 +55,7 @@ const CreateCourse = () => {
           setImage({ ...image, key, location });
         } catch (e) {
           console.log(e);
-          toast.error("Error uploading Image to AWS S3");
+          toast.error("Error uploading Image to AWS S3. Retry uploading image.");
         }
         setCourse({ ...course, uploading: false });
       }
@@ -87,8 +89,14 @@ const CreateCourse = () => {
         ...course,
         image,
       });
+
+      toast.success(
+        "Great! Now you can starting adding lessons to this course"
+      );
+      router.push("/instructor");
     } catch (e) {
       console.log(e);
+      toast.error("Oops something went wrong");
     }
   };
 
@@ -104,7 +112,6 @@ const CreateCourse = () => {
             placeholder="Course Name"
             value={course.name}
             onChange={handleChange}
-            disabled
           />
           <textarea
             name="description"
@@ -113,7 +120,6 @@ const CreateCourse = () => {
             value={course.description}
             placeholder="Course description"
             rows={7}
-            maxLength="100"
           />
 
           <div className="row mb-3">
@@ -129,14 +135,15 @@ const CreateCourse = () => {
             </div>
             {course.paid && (
               <div className="col-md-4">
-                <input
-                  type="number"
-                  name="price"
-                  placeholder="Enter course price"
-                  className="form-control"
-                  onChange={handleChange}
-                  required
-                />
+                <div class="input-group mb-3">
+                  <span class="input-group-text">₦</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    aria-label="Amount (to the nearest dollar)"
+                  />
+                  <span class="input-group-text">.00</span>
+                </div>
               </div>
             )}
           </div>
@@ -176,7 +183,11 @@ const CreateCourse = () => {
             className="btn btn-primary btn-block"
             type="submit"
             disabled={
-              loading || !course.name || !course.description || !course.category
+              loading ||
+              !course.name ||
+              !course.description ||
+              !course.category ||
+              !image.location
             }
           >
             {loading ? <SyncOutlined spin /> : "Create Course"}

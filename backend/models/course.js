@@ -1,10 +1,9 @@
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+const { Schema, model } = require("mongoose");
 const { lessonSchema } = require("./lesson");
 
-const { ObjectId } = Schema;
+const { ObjectId } = Schema.Types;
 
-const courseSchema = new Schema(
+const courseSchema = Schema(
   {
     name: {
       type: String,
@@ -48,6 +47,6 @@ const courseSchema = new Schema(
   { timestamps: true }
 );
 
-const Course = new model("course", courseSchema);
+const Course = new model("Course", courseSchema);
 
 module.exports = Course;
