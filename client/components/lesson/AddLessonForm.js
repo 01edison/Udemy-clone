@@ -141,6 +141,7 @@ const AddLessonForm = ({
           type="submit"
           className="btn btn-primary btn-block mt-3 round"
           style={{ borderRadius: "1.5rem" }}
+          disabled={videoUploading || uploading}
         >
           {uploading ? <SyncOutlined spin /> : "Add Lesson"}
         </button>

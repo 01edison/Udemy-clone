@@ -47,11 +47,8 @@ const Navigation = () => {
         router.push("/login");
       }
     })();
-  });
-
-  useEffect(() => {
-    
   }, []);
+
   return (
     <Menu mode="horizontal" selectedKeys={[current]}>
       <Item key="/" onClick={(e) => setCurrent(e.key)} icon={<HomeOutlined />}>

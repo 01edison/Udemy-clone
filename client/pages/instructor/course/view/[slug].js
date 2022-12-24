@@ -2,10 +2,17 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import InstructorRoute from "../../../../components/routes/InstructorRoute";
-import AddLessonForm from "../../../../components/AddLessonForm";
+import AddLessonForm from "../../../../components/lesson/AddLessonForm";
 import { Avatar, Tooltip, Button, Modal, List } from "antd";
-import { EditOutlined, CheckOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  CheckOutlined,
+  UploadOutlined,
+  QuestionOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import ReactMarkdown from "react-markdown";
+import { toast } from "react-toastify";
 
 const { Item } = List;
 const InstructorCourseView = () => {
@@ -25,6 +32,38 @@ const InstructorCourseView = () => {
       }
     })();
   }, [slug]);
+
+  const handlePublish = async (id) => {
+    try {
+      const confirmed = confirm(
+        "Are you sure? Once published, course will be live on the marketplace"
+      );
+      if (confirmed) {
+        const { data } = await axios.patch(`/api/course/publish/${course._id}`);
+        setCourse(data);
+        toast.success("Congrats! Your course has been published");
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error publishing course. Please try again later.");
+    }
+  };
+
+  const handleUnpublish = async (id) => {
+    try {
+      const confirmed = confirm(
+        "Are you sure? Once unpublished, course will not be available in the market place"
+      );
+      if (confirmed) {
+        const { data } = await axios.patch(`/api/course/unpublish/${course._id}`);
+        setCourse(data);
+        toast.success("Your course has been successfully unpublished.");
+      }
+    } catch (e) {
+      console.log(e);
+      toast.error("Error unpublishing your course. Please try again later");
+    }
+  };
 
   return (
     <InstructorRoute>
@@ -49,11 +88,37 @@ const InstructorCourseView = () => {
                 </div>
                 <div className="d-flex pt-4">
                   <Tooltip title="Edit">
-                    <EditOutlined className="h5 pointer text-warning mr-4" />
+                    <EditOutlined
+                      className="h5 pointer text-warning mr-4"
+                      onClick={() =>
+                        router.push(`/instructor/course/edit/${slug}`)
+                      }
+                    />
                   </Tooltip>
-                  <Tooltip title="Publish">
-                    <CheckOutlined className="h5 pointer text-danger" />
-                  </Tooltip>
+
+                  {course?.lessons?.length < 5 ? (
+                    <Tooltip title="Min 5 lessons to publish a course">
+                      <QuestionOutlined className="pointer text-danger pt-1" />
+                    </Tooltip>
+                  ) : course.published ? (
+                    <Tooltip title="Unpublish Course">
+                      <CloseOutlined
+                        onClick={() => {
+                          handleUnpublish(course._id);
+                        }}
+                        className="text-danger pointer h5"
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Publish Course">
+                      <CheckOutlined
+                        onClick={() => {
+                          handlePublish(course._id);
+                        }}
+                        className="text-success pointer h5"
+                      />
+                    </Tooltip>
+                  )}
                 </div>
               </div>
             </div>

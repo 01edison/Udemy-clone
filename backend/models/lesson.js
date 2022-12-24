@@ -16,7 +16,6 @@ const lessonSchema = Schema(
     },
     video: {
       type: {},
-      required: true,
     },
     free_preview: {
       type: Boolean,

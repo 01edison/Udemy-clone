@@ -22,14 +22,20 @@ const {
 
 const { getUser, becomeInstructor } = require("./controllers/user");
 const {
+  courses,
   uploadImage,
   uploadVideo,
   deleteVideo,
   deleteImage,
   createCourse,
+  updateCourse,
   getCourses,
   getCourse,
-  addLesson
+  addLesson,
+  updateLesson,
+  deleteLesson,
+  publishCourse,
+  unpublishCourse
 } = require("./controllers/course");
 
 mongoose
@@ -65,6 +71,7 @@ app.get("/api/user", isUserAuthenticated, getUser);
 app.post("/api/become-instructor", isUserAuthenticated, becomeInstructor);
 
 //course routes
+app.get("/api/live-courses", courses)
 app.post("/api/course/upload-image", instructorRoute, uploadImage);
 app.post(
   "/api/course/upload-video/:instructorId",
@@ -72,12 +79,19 @@ app.post(
   formidableMiddleware(),
   uploadVideo
 );
-app.post("/api/course/delete-video", instructorRoute, deleteVideo);
+app.post("/api/course/delete-video/:slug", instructorRoute, deleteVideo);
 app.post("/api/course/delete-image", instructorRoute, deleteImage);
-app.post("/api/create-course", instructorRoute, createCourse);
+app.post("/api/course", instructorRoute, createCourse);
+app.patch("/api/course", instructorRoute, updateCourse)
 app.get("/api/courses", instructorRoute, getCourses);
 app.get("/api/course/:slug", isUserAuthenticated, getCourse);
+app.patch("/api/course/publish/:courseId", instructorRoute, publishCourse);
+app.patch("/api/course/unpublish/:courseId", instructorRoute, unpublishCourse);
+
+//lesson routes
+app.delete("/api/course/delete-lesson/:slug/:lessonTitle", instructorRoute, deleteLesson)
 app.post("/api/course/add-lesson/:slug/:instructorId", instructorRoute, addLesson);
+app.put("/api/course/update-lesson/:slug/:instructorId", instructorRoute, updateLesson)
 
 //csrf token
 app.get("/api/csrf-token", (req, res) => {

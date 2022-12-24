@@ -98,7 +98,12 @@ const uploadVideo = async (req, res) => {
 };
 
 const deleteVideo = async (req, res) => {
-  const { key } = req.body;
+  const { slug } = req.params;
+  const {
+    video: { key },
+    lessonTitle,
+  } = req.body;
+
   if (!key)
     return res.status(400).json({ err: "No Key provided for video deletion." });
 
@@ -112,12 +117,33 @@ const deleteVideo = async (req, res) => {
     console.log(
       `Object with key: ${videoParams.Key} deleted from Bucket successfully`
     );
-    return res.json({
-      msg: `Object with key: ${videoParams.Key} deleted from Bucket successfully`,
+
+    Course.findOne({ slug }, (err, course) => {
+      if (!err) {
+        if (!course) return res.status(400).json({ err: "No course found" });
+        else {
+          //find the index of that lesson
+          const lessonIndex = course.lessons.findIndex(
+            (lesson) => lesson.title == lessonTitle
+          );
+          //use that index and splice that lesson out and set its video to empty object
+          let lesson = course.lessons.splice(lessonIndex, 1)[0];
+          //use splice to insert it back into that index
+          lesson.video = { location: "", key: "" };
+          course.lessons.splice(lessonIndex, 0, lesson);
+          // save course
+          course.save((err) => {
+            if (!err) return res.json({ msg: "Video deleted successfully" });
+            else {
+              return res.status(400).json({ err });
+            }
+          });
+        }
+      }
     });
-  } catch (e) {
-    console.log(e);
-    return res.status(400).json({ err: e });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({ err });
   }
 };
 
@@ -125,7 +151,7 @@ const createCourse = (req, res) => {
   try {
     const { id: instructorId } = req.profile;
     const { name, description, category, price, paid, image } = req.body;
-    Course.findOne({ name: slugify(name) }, (err, course) => {
+    Course.findOne({ slug: slugify(name) }, (err, course) => {
       if (!err) {
         if (course) {
           return res.status(400).json({ err: "Course already exists" });
@@ -161,6 +187,38 @@ const createCourse = (req, res) => {
     return res.status(400).json({ err: "Couldn't create course, try again" });
   }
 };
+
+const updateCourse = (req, res) => {
+  try {
+    const { id: instructorId } = req.profile;
+    const { name, slug, description, category, price, paid, image } = req.body;
+
+    Course.findOneAndUpdate(
+      { instructor: instructorId, slug },
+      {
+        slug: slugify(name),
+        name,
+        description,
+        category,
+        price: paid ? price : 0,
+        paid,
+        image,
+      },
+      { new: true },
+      (err, result) => {
+        if (!err) {
+          return res.status(201).json({ result });
+        } else {
+          return res.status(400).json({ err });
+        }
+      }
+    );
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ err: e });
+  }
+};
+
 const getCourse = (req, res) => {
   try {
     const slug = req.params.slug;
@@ -171,6 +229,24 @@ const getCourse = (req, res) => {
           if (!course) return res.status(400).json({ err: "Course not found" });
           else {
             return res.send(course);
+          }
+        }
+      });
+  } catch (e) {
+    console.log(e);
+    return res.sendStatus(400);
+  }
+};
+
+const courses = (req, res) => {
+  try {
+    Course.find({ published: true })
+      .populate("instructor", "_id name")
+      .exec((err, courses) => {
+        if (!err) {
+          if (!courses) return res.status(400).send("No Courses");
+          else {
+            return res.status(200).send(courses);
           }
         }
       });
@@ -213,6 +289,14 @@ const addLesson = (req, res) => {
       .populate("instructor")
       .exec((err, course) => {
         if (!err) {
+          if (
+            course.lessons.some(
+              (lesson) =>
+                lesson.title == _lesson.title || lesson.slug == _lesson.slug
+            )
+          ) {
+            return res.status(400).json({ err: "Lesson already exists" });
+          }
           course.lessons.push(_lesson);
           course.save((err) => {
             if (!err) {
@@ -230,13 +314,123 @@ const addLesson = (req, res) => {
     return res.status(400).json({ err: e });
   }
 };
+
+const updateLesson = (req, res) => {
+  try {
+    const { slug, instructorId } = req.params;
+    const { currentLesson } = req.body;
+
+    // console.log(currentLesson, slug, instructorId);
+
+    Course.findOne({ slug }, (err, course) => {
+      if (!err) {
+        if (!course) {
+          return res.status(400).json({ err: "No course found" });
+        } else {
+          const lessonIndex = course.lessons.findIndex(
+            (lesson) => lesson.slug === currentLesson.slug
+          );
+          course.lessons.splice(lessonIndex, 1, currentLesson); //replace the old with the new at the same ind
+          course.save((err) => {
+            if (!err) return res.status(200).send(course);
+            else {
+              return res.status(400).json({ err });
+            }
+          });
+        }
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(400).json({ err });
+  }
+};
+
+const deleteLesson = (req, res) => {
+  try {
+    const { slug, lessonTitle } = req.params;
+
+    Course.findOne({ slug }, (err, course) => {
+      if (err) return res.status(400).json({ err });
+
+      if (course) {
+        const filteredLessons = course.lessons.filter(
+          (lesson) => lesson.title != lessonTitle
+        );
+        course.lessons = filteredLessons;
+
+        course.save((err) => {
+          if (!err)
+            return res.json({ msg: `${lessonTitle} deleted successfully!` });
+          else {
+            return res.status(400).json({ err });
+          }
+        });
+      } else {
+        return res.status(400).json({ err: "Course does not exist" });
+      }
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).json({ err: e });
+  }
+};
+
+const publishCourse = (req, res) => {
+  try {
+    const { courseId } = req.params;
+    Course.findByIdAndUpdate(
+      courseId,
+      { published: true },
+      { new: true },
+      (err, course) => {
+        if (!err) {
+          return res.status(201).send(course);
+        } else {
+          return res.status(400).json({ err });
+        }
+      }
+    );
+  } catch (e) {
+    console.log(e);
+    return res.sendStatus(400);
+  }
+};
+
+const unpublishCourse = (req, res) => {
+  try {
+    const { courseId } = req.params;
+    Course.findByIdAndUpdate(
+      courseId,
+      { published: false },
+      { new: true },
+      (err, course) => {
+        if (!err) {
+          return res.status(201).send(course);
+        } else {
+          return res.status(400).json({ err });
+        }
+      }
+    );
+  } catch (e) {
+    console.log(e);
+    return res.sendStatus(400);
+  }
+};
+
 module.exports = {
+  courses,
   uploadImage,
   uploadVideo,
   deleteVideo,
   deleteImage,
   createCourse,
+  updateCourse,
   getCourse,
   getCourses,
   addLesson,
+  updateLesson,
+  deleteLesson,
+  publishCourse,
+  unpublishCourse,
 };

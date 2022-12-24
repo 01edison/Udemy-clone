@@ -5,7 +5,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
 } from "@ant-design/icons";
-import { Avatar } from "antd";
+import { Avatar, Tooltip } from "antd";
 import axios from "axios";
 import Link from "next/link";
 import InstructorRoute from "../../components/routes/InstructorRoute";
@@ -13,8 +13,6 @@ import InstructorRoute from "../../components/routes/InstructorRoute";
 const Instructor = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
     (async () => {
@@ -75,15 +73,19 @@ const Instructor = () => {
                   ) : (
                     <P
                       text={"Your course is ready to be published"}
-                      status={"primary"}
+                      status={"success"}
                     ></P>
                   )}
                 </div>
                 <div className="col-md-3 mt-3 text-center">
                   {course.published ? (
-                    <CheckCircleOutlined className="text-success" />
+                    <Tooltip title="Published">
+                      <CheckCircleOutlined className="text-success" />
+                    </Tooltip>
                   ) : (
-                    <CloseCircleOutlined className="text-danger" />
+                    <Tooltip title="Unpublished">
+                      <CloseCircleOutlined className="text-danger" />
+                    </Tooltip>
                   )}
                 </div>
               </div>
