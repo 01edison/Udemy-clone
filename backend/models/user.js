@@ -1,5 +1,7 @@
 const { Schema, model } = require("mongoose");
 
+const { ObjectId } = Schema.Types;
+
 const userSchema = Schema(
   {
     name: {
@@ -32,6 +34,7 @@ const userSchema = Schema(
       type: String,
       default: "",
     },
+    courses: [{ type: ObjectId, ref: "Course" }],
   },
   { timestamps: true }
 );

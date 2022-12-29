@@ -2,6 +2,7 @@ const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { s3Client } = require("../utils/s3Client");
 const ShortUniqueId = require("short-unique-id");
 const Course = require("../models/course");
+const User = require("../models/user");
 const slugify = require("slugify");
 const fs = require("fs");
 
@@ -306,6 +307,7 @@ const addLesson = (req, res) => {
             }
           });
         } else {
+          console.log(err);
           return res.status(400).json({ err });
         }
       });
@@ -338,6 +340,9 @@ const updateLesson = (req, res) => {
             }
           });
         }
+      } else {
+        console.log(err);
+        return res.send(err);
       }
     });
   } catch (err) {
@@ -418,6 +423,65 @@ const unpublishCourse = (req, res) => {
   }
 };
 
+const checkEnrollment = (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { id } = req.profile;
+
+    Course.findOne({ _id: courseId }, (err, course) => {
+      if (!err) {
+        if (!course) return res.status(400).send("No course found");
+
+        const match = course?.paid_students.some(
+          (studentId) => studentId === id
+        );
+        if (match) {
+          return res.status(200).send(true);
+        } else {
+          return res.send(false);
+        }
+      } else {
+        return res.status(400).send(err);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const enroll = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { id } = req.profile;
+    const user = await User.findById(id)
+    Course.findOne({ _id: courseId }, (err, course) => {
+      if (err) return res.status(400).send(err);
+
+      if (!course) return res.status(400).send("No Course found");
+      if (course.paid_students.includes(id) || user.courses.includes(courseId))
+        return res.send("Student Already Enrolled");
+
+      user.courses.push(courseId);
+      user.save()
+      course.paid_students.push(id);
+      course.save((err) => {
+        if (err) {
+          console.log(err);
+          return res.status(400).send(err);
+        } else {
+          return res.status(200).json({
+            message: "Student enrolled successfully",
+            status: "ok",
+          });
+        }
+      });
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(400).send(e);
+  }
+};
+
 module.exports = {
   courses,
   uploadImage,
@@ -433,4 +497,6 @@ module.exports = {
   deleteLesson,
   publishCourse,
   unpublishCourse,
+  checkEnrollment,
+  enroll,
 };

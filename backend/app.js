@@ -35,7 +35,9 @@ const {
   updateLesson,
   deleteLesson,
   publishCourse,
-  unpublishCourse
+  unpublishCourse,
+  checkEnrollment,
+  enroll
 } = require("./controllers/course");
 
 mongoose
@@ -84,9 +86,11 @@ app.post("/api/course/delete-image", instructorRoute, deleteImage);
 app.post("/api/course", instructorRoute, createCourse);
 app.patch("/api/course", instructorRoute, updateCourse)
 app.get("/api/courses", instructorRoute, getCourses);
-app.get("/api/course/:slug", isUserAuthenticated, getCourse);
+app.get("/api/course/:slug", getCourse);
 app.patch("/api/course/publish/:courseId", instructorRoute, publishCourse);
 app.patch("/api/course/unpublish/:courseId", instructorRoute, unpublishCourse);
+app.get("/api/check-enrollment/:courseId", isUserAuthenticated, checkEnrollment)
+app.post("/api/course-enrollment/:courseId", isUserAuthenticated, enroll)
 
 //lesson routes
 app.delete("/api/course/delete-lesson/:slug/:lessonTitle", instructorRoute, deleteLesson)

@@ -24,7 +24,7 @@ const EditCourse = () => {
     description: "",
     category: "",
     price: 15000,
-    paid: true,
+    paid: "",
     uploading: false,
     lessons: [],
   });
@@ -34,7 +34,6 @@ const EditCourse = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [currentLesson, setCurrentLesson] = useState({});
- 
 
   useEffect(() => {
     (async () => {
@@ -47,12 +46,11 @@ const EditCourse = () => {
           location: data?.image?.location,
           key: data?.image?.key,
         });
-      
       } catch (e) {
         console.log(e);
       }
     })();
-  }, [slug, course.paid]);
+  }, [slug]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -152,6 +150,7 @@ const EditCourse = () => {
   return (
     <InstructorRoute>
       <h1 className="jumbotron square text-center">Update Course</h1>
+      {JSON.stringify(course)}
       <div className="pt-3 pb-3">
         <form className="form-group" onSubmit={handleSubmit}>
           <input
@@ -175,7 +174,7 @@ const EditCourse = () => {
             <div className="col-md-8">
               <Select
                 style={{ width: "100%" }}
-                defaultValue={course?.paid}
+                value={course.paid}
                 onChange={(value) => setCourse({ ...course, paid: value })}
               >
                 <Option value={true}>Paid</Option>
@@ -190,7 +189,7 @@ const EditCourse = () => {
                     type="number"
                     class="form-control"
                     name="price"
-                    value={course.price}
+                    value={course?.price}
                     onChange={handleChange}
                     required
                   />
@@ -203,7 +202,7 @@ const EditCourse = () => {
             type="text"
             name="category"
             className="form-control mb-3"
-            value={course.category}
+            value={course?.category}
             required
             onChange={handleChange}
             placeholder="Enter Course Category"
@@ -211,15 +210,15 @@ const EditCourse = () => {
           <div className="row">
             <div className="col-md-6">
               <label className="w-100 btn btn-primary">
-                {course.uploading ? <SyncOutlined spin /> : imageUploadText}
+                {course?.uploading ? <SyncOutlined spin /> : imageUploadText}
                 <input
                   className="btn btn-primary"
                   type="file"
                   name="image"
                   onChange={handleImage}
-                  value={course.imagePreview}
+                  value={course?.imagePreview}
                   hidden
-                  disabled={image.location ? true : false}
+                  disabled={image?.location ? true : false}
                 />
               </label>
             </div>
@@ -300,8 +299,6 @@ const EditCourse = () => {
           </div>
         </div>
         <br />
-        {/* {JSON.stringify(course, null, 4)} */}
-        {/* {JSON.stringify(image, null, 4)} */}
       </div>
     </InstructorRoute>
   );
